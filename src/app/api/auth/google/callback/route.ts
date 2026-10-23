@@ -9,12 +9,21 @@ export const dynamic = "force-dynamic";
  * Google OAuth 2.0 Callback Handler
  * Verifies OAuth state, exchanges authorization code, retrieves profile, and starts session
  */
+function getAppOrigin(request: NextRequest): string {
+  if (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL.trim() !== "") {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  }
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || new URL(request.url).host;
+  const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
   const error = searchParams.get("error");
-  const origin = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const origin = getAppOrigin(request);
 
   if (error) {
     return NextResponse.redirect(new URL(`/auth/login?error=${encodeURIComponent(error)}`, origin));

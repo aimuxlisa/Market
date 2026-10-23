@@ -8,6 +8,15 @@ export const dynamic = "force-dynamic";
  * Initiates Google OAuth 2.0 flow
  * Generates secure random state, stores in HTTP-only cookie, and redirects
  */
+function getAppOrigin(request: NextRequest): string {
+  if (process.env.NEXT_PUBLIC_APP_URL && process.env.NEXT_PUBLIC_APP_URL.trim() !== "") {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  }
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || new URL(request.url).host;
+  const proto = request.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const state = crypto.randomBytes(24).toString("hex");
@@ -23,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const origin = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const origin = getAppOrigin(request);
   const redirectUri = `${origin}/api/auth/google/callback`;
 
   // If real Google Cloud OAuth credentials are configured
