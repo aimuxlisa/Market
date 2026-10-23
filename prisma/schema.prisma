@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String?
+  name         String
+  phone        String?
+  role         String      @default("CUSTOMER") // "CUSTOMER" | "ADMIN"
+  avatarUrl    String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  addresses    Address[]
+  orders       Order[]
+  favorites    Favorite[]
+  carts        Cart[]
+
+  @@index([email])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  city       String
+  street     String
+  building   String
+  apartment  String?
+  comment    String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  parentId    String?
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  icon        String?
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@index([slug])
+  @@index([parentId])
+}
+
+model Product {
+  id          String             @id @default(cuid())
+  categoryId  String
+  brand       String
+  name        String
+  slug        String             @unique
+  sku         String             @unique
+  description String
+  price       Int                // Price in UZS as integer
+  oldPrice    Int?               // Old price in UZS if discounted
+  stock       Int                @default(0)
+  status      String             @default("PUBLISHED") // "DRAFT" | "PUBLISHED" | "ARCHIVED"
+  isFeatured  Boolean            @default(false)
+  isNew       Boolean            @default(false)
+  rating      Float              @default(5.0)
+  reviewsCount Int               @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  category    Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images      ProductImage[]
+  attributes  ProductAttribute[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  favorites   Favorite[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([sku])
+  @@index([brand])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductAttribute {
+  id        String   @id @default(cuid())
+  productId String
+  key       String   // e.g. "Экран", "Память", "Процессор"
+  value     String   // e.g. "6.7 AMOLED", "256 GB", "Snapdragon 8 Gen 3"
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([key])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model Cart {
+  id           String     @id @default(cuid())
+  userId       String?
+  sessionToken String?    @unique
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items        CartItem[]
+
+  @@index([userId])
+  @@index([sessionToken])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@index([cartId])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique // e.g. "NX-2026-1001"
+  userId         String?
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  deliveryCity   String
+  deliveryAddress String
+  deliveryMethod String      // "standard", "express", "pickup"
+  paymentMethod  String      // "cash", "yookassa", "card_on_delivery"
+  comment        String?
+  
+  // Order status: pending -> confirmed -> processing -> shipped -> delivered (or cancelled)
+  status         String      @default("pending")
+  // Payment status: not_required | pending | paid | failed | refunded
+  paymentStatus  String      @default("pending")
+
+  subtotal       Int         // Sum of items in UZS
+  deliveryFee    Int         @default(0)
+  discount       Int         @default(0)
+  total          Int         // Final total in UZS
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items          OrderItem[]
+  payments       Payment[]
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+}
+
+model OrderItem {
+  id                  String   @id @default(cuid())
+  orderId             String
+  productId           String?
+  productNameSnapshot String
+  skuSnapshot         String
+  unitPrice           Int      // Snapshot price in UZS
+  quantity            Int
+  lineTotal           Int      // unitPrice * quantity
+
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product             Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  orderId           String
+  provider          String   // "YOOKASSA", "CASH", "CARD"
+  providerPaymentId String?
+  amount            Int      // in UZS
+  currency          String   @default("UZS")
+  status            String   @default("pending") // "pending" | "paid" | "failed" | "refunded"
+  idempotencyKey    String?  @unique
+  metadata          String?  // JSON string
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([providerPaymentId])
+}
+
+model Promotion {
+  id           String    @id @default(cuid())
+  title        String
+  subtitle     String?
+  badge        String?
+  desktopImage String
+  mobileImage  String?
+  href         String
+  startsAt     DateTime?
+  endsAt       DateTime?
+  isActive     Boolean   @default(true)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String   // email or system id
+  action    String   // "CREATE_PRODUCT", "UPDATE_ORDER_STATUS", etc.
+  entity    String   // "Product", "Order", etc.
+  entityId  String?
+  metadata  String?  // JSON formatted details
+  timestamp DateTime @default(now())
+
+  @@index([entity])
+  @@index([actor])
+}
