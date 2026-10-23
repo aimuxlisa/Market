@@ -90,3 +90,39 @@ export async function clearSessionCookie() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 }
+
+/**
+ * Server-side guard to enforce ADMIN role
+ */
+export async function requireAdmin(): Promise<SessionUser | null> {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "ADMIN") {
+    return null;
+  }
+  return user;
+}
+
+/**
+ * Record critical admin actions to the AuditLog table
+ */
+export async function logAudit(
+  actor: string,
+  action: string,
+  entity: string,
+  entityId?: string | null,
+  metadata?: Record<string, unknown> | null
+) {
+  try {
+    await prisma.auditLog.create({
+      data: {
+        actor,
+        action,
+        entity,
+        entityId: entityId || null,
+        metadata: metadata ? JSON.stringify(metadata) : null,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to write audit log:", error);
+  }
+}

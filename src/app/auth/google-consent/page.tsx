@@ -70,7 +70,7 @@ function GoogleConsentContent() {
           </svg>
         </div>
 
-        <h1 className="font-display" style={{ fontSize: "1.5rem", fontWeight: 800, color: "#FFF", marginBottom: "0.4rem" }}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#FFF", marginBottom: "0.4rem", letterSpacing: "-0.02em" }}>
           Вход через Google
         </h1>
         <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>

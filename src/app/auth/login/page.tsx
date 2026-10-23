@@ -84,7 +84,7 @@ export default function LoginPage() {
               >
                 N
               </div>
-              <h1 className="font-display" style={{ fontSize: "1.65rem", fontWeight: 800, color: "#FFF", marginBottom: "0.5rem" }}>
+              <h1 style={{ fontSize: "1.65rem", fontWeight: 800, color: "#FFF", marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
                 Вход в аккаунт
               </h1>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>

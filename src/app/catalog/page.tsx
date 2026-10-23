@@ -67,29 +67,45 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     orderBy = { isFeatured: "desc" };
   }
 
-  // Fetch data in parallel
-  const [categories, products, allBrands] = await Promise.all([
-    prisma.category.findMany({
-      where: { isActive: true },
-      include: {
-        _count: { select: { products: true } },
-      },
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.product.findMany({
-      where,
-      include: {
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      },
-      orderBy,
-    }),
-    prisma.product.findMany({
-      select: { brand: true },
-      distinct: ["brand"],
-    }),
-  ]);
+  // Fetch data in parallel with safe fallback
+  type CategoryWithCount = Prisma.CategoryGetPayload<{
+    include: { _count: { select: { products: true } } };
+  }>;
+  type ProductItem = Prisma.ProductGetPayload<{
+    include: { images: { orderBy: { sortOrder: "asc" }; take: 1 } };
+  }>;
 
-  const uniqueBrands = allBrands.map((b) => b.brand).sort();
+  let categories: CategoryWithCount[] = [];
+  let products: ProductItem[] = [];
+  let uniqueBrands: string[] = [];
+
+  try {
+    const [fetchedCats, fetchedProds, allBrands] = await Promise.all([
+      prisma.category.findMany({
+        where: { isActive: true },
+        include: {
+          _count: { select: { products: true } },
+        },
+        orderBy: { sortOrder: "asc" },
+      }),
+      prisma.product.findMany({
+        where,
+        include: {
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+        orderBy,
+      }),
+      prisma.product.findMany({
+        select: { brand: true },
+        distinct: ["brand"],
+      }),
+    ]);
+    categories = fetchedCats;
+    products = fetchedProds;
+    uniqueBrands = allBrands.map((b) => b.brand).sort();
+  } catch (err) {
+    console.error("Database connection error on CatalogPage:", err);
+  }
 
   return (
     <>

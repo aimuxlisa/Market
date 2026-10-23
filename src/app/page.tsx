@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import {
   Smartphone,
   Laptop,
@@ -21,27 +22,44 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Fetch real data from Prisma
-  const [categories, products, promotions] = await Promise.all([
-    prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
-      take: 6,
-    }),
-    prisma.product.findMany({
-      where: { status: "PUBLISHED" },
-      include: {
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.promotion.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
-      take: 4,
-    }),
-  ]);
+  // Fetch real data from Prisma with safe fallback
+  type CategoryWithIcon = { id: string; name: string; slug: string; icon: string | null };
+  type ProductWithImages = Prisma.ProductGetPayload<{
+    include: { images: { orderBy: { sortOrder: "asc" }; take: 1 } };
+  }>;
+  type PromotionItem = Awaited<ReturnType<typeof prisma.promotion.findMany>>[number];
+
+  let categories: CategoryWithIcon[] = [];
+  let products: ProductWithImages[] = [];
+  let promotions: PromotionItem[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+        take: 6,
+      }),
+      prisma.product.findMany({
+        where: { status: "PUBLISHED" },
+        include: {
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+      prisma.promotion.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+        take: 4,
+      }),
+    ]);
+    categories = results[0];
+    products = results[1];
+    promotions = results[2];
+  } catch (err) {
+    console.error("Database connection error on HomePage:", err);
+  }
 
   const categoryIcons: Record<string, React.ReactNode> = {
     Smartphone: <Smartphone size={20} />,
