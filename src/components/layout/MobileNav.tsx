@@ -5,21 +5,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, LayoutGrid, Heart, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 interface MobileNavProps {
   favoritesCount?: number;
 }
 
 export const MobileNav: React.FC<MobileNavProps> = ({
-  favoritesCount = 0,
+  favoritesCount,
 }) => {
   const pathname = usePathname();
   const { totalCount: cartCount } = useCart();
+  const { favoritesCount: storedFavCount } = useFavorites();
+  const effectiveFavCount = favoritesCount !== undefined ? favoritesCount : storedFavCount;
 
   const navItems = [
     { label: "Главная", href: "/", icon: Home },
     { label: "Каталог", href: "/catalog", icon: LayoutGrid },
-    { label: "Избранное", href: "/favorites", icon: Heart, badge: favoritesCount },
+    { label: "Избранное", href: "/favorites", icon: Heart, badge: effectiveFavCount },
     { label: "Корзина", href: "/cart", icon: ShoppingBag, badge: cartCount },
     { label: "Кабинет", href: "/account", icon: User },
   ];

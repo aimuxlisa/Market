@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Star, Check } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { Badge } from "./Badge";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export interface ProductCardProps {
   id: string;
@@ -40,10 +41,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   stock = 1,
   onAddToCart,
   onToggleFavorite,
-  isFavorite = false,
+  isFavorite: propIsFavorite,
 }) => {
   const { addToCart } = useCart();
-  const [favorite, setFavorite] = useState(isFavorite);
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
+  const isFav = propIsFavorite !== undefined ? propIsFavorite : checkIsFavorite(id);
   const [added, setAdded] = useState(false);
 
   const discountPercent =
@@ -54,7 +56,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorite(!favorite);
+    toggleFavorite({
+      id,
+      name,
+      slug,
+      brand,
+      price,
+      oldPrice,
+      rating,
+      reviewsCount,
+      imageUrl,
+      stock,
+    });
     if (onToggleFavorite) onToggleFavorite(id);
   };
 
@@ -83,10 +96,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <button
         type="button"
         aria-label="В избранное"
-        className={`product-card-fav ${favorite ? "active" : ""}`}
+        className={`product-card-fav ${isFav ? "active" : ""}`}
         onClick={handleFavoriteClick}
       >
-        <Heart size={18} fill={favorite ? "currentColor" : "none"} />
+        <Heart size={18} fill={isFav ? "currentColor" : "none"} />
       </button>
 
       {/* Image Wrap */}

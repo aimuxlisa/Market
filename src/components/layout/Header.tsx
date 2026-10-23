@@ -18,15 +18,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 interface HeaderProps {
   favoritesCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  favoritesCount = 0,
+  favoritesCount,
 }) => {
   const { totalCount: cartCount } = useCart();
+  const { favoritesCount: storedFavCount } = useFavorites();
+  const effectiveFavCount = favoritesCount !== undefined ? favoritesCount : storedFavCount;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
@@ -216,7 +219,7 @@ export const Header: React.FC<HeaderProps> = ({
                 style={{ position: "relative" }}
               >
                 <Heart size={20} />
-                {favoritesCount > 0 && (
+                {effectiveFavCount > 0 && (
                   <span
                     style={{
                       position: "absolute",
@@ -234,7 +237,7 @@ export const Header: React.FC<HeaderProps> = ({
                       justifyContent: "center",
                     }}
                   >
-                    {favoritesCount}
+                    {effectiveFavCount}
                   </span>
                 )}
               </button>

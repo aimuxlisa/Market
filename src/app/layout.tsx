@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { DynamicBackground } from "@/components/layout/DynamicBackground";
 import { CartProvider } from "@/context/CartContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -34,12 +35,14 @@ export default function RootLayout({
     <html lang="ru">
       <body>
         <DynamicBackground />
-        <CartProvider>
-          <div id="app-root" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-            {children}
-            <MobileNav />
-          </div>
-        </CartProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <div id="app-root" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+              {children}
+              <MobileNav />
+            </div>
+          </CartProvider>
+        </FavoritesProvider>
       </body>
     </html>
   );
