@@ -6,8 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { prisma } from "@/lib/prisma";
-import { formatPrice, formatDate, ORDER_STATUS_LABELS } from "@/lib/format";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { formatPrice, formatDate, ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/format";
+import { CheckCircle, ArrowRight, CreditCard } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
   }
 
   const statusInfo = ORDER_STATUS_LABELS[order.status] || { label: order.status, color: "cyan" as const };
+  const paymentStatusInfo = PAYMENT_STATUS_LABELS[order.paymentStatus] || { label: order.paymentStatus, color: "purple" as const };
 
   return (
     <>
@@ -100,12 +101,52 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
               </div>
               <div style={{ height: "28px", width: "1px", background: "var(--border-subtle)" }} />
               <div style={{ textAlign: "left" }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block" }}>Статус</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block" }}>Статус заказа</span>
                 <Badge variant={statusInfo.color}>
                   {statusInfo.label}
                 </Badge>
               </div>
+              <div style={{ height: "28px", width: "1px", background: "var(--border-subtle)" }} />
+              <div style={{ textAlign: "left" }}>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block" }}>Оплата</span>
+                <Badge variant={paymentStatusInfo.color}>
+                  {paymentStatusInfo.label}
+                </Badge>
+              </div>
             </div>
+
+            {/* Notification if payment is pending or failed */}
+            {order.paymentStatus !== "paid" && (
+              <div
+                style={{
+                  marginTop: "1.5rem",
+                  background: "rgba(99, 91, 255, 0.1)",
+                  border: "1px solid rgba(99, 91, 255, 0.3)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "1.25rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                  textAlign: "left",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, color: "#FFF", fontSize: "0.9375rem" }}>
+                    Заказ ожидает оплаты картой через Stripe
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>
+                    Для завершения оформления оплатите заказ в безопасном тестовом шлюзе.
+                  </div>
+                </div>
+                <Link href={`/order/stripe-simulator?orderId=${order.id}&sessionId=cs_test_${order.id}&amount=${order.total}&currency=UZS`}>
+                  <Button variant="cyan" size="sm" style={{ background: "#635BFF", borderColor: "#635BFF" }} leftIcon={<CreditCard size={15} />}>
+                    Оплатить через Stripe ({formatPrice(order.total)})
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Details Card */}
@@ -138,7 +179,13 @@ export default async function OrderSuccessPage({ params }: OrderSuccessPageProps
               <div>
                 <span style={{ fontSize: "0.8125rem", color: "var(--text-muted)", display: "block" }}>Способ оплаты</span>
                 <strong style={{ color: "#FFF", fontSize: "0.9375rem" }}>
-                  {order.paymentMethod === "cash" ? "Наличными курьеру" : order.paymentMethod === "card_on_delivery" ? "Картой курьеру" : "Онлайн (Payme)"}
+                  {order.paymentMethod === "cash"
+                    ? "Наличными курьеру"
+                    : order.paymentMethod === "card_on_delivery"
+                    ? "Картой курьеру"
+                    : order.paymentMethod === "stripe"
+                    ? "Онлайн (Stripe)"
+                    : "Онлайн (Payme)"}
                 </strong>
                 <div style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
                   Дата: {formatDate(order.createdAt)}

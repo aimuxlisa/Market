@@ -86,6 +86,24 @@ export default function CheckoutPage() {
 
       // Order created successfully!
       clearCart();
+
+      if (paymentMethod === "stripe") {
+        try {
+          const stripeRes = await fetch("/api/payments/stripe/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.orderId }),
+          });
+          const stripeData = await stripeRes.json();
+          if (stripeRes.ok && stripeData.url) {
+            window.location.href = stripeData.url;
+            return;
+          }
+        } catch (e) {
+          console.error("Stripe redirect failed:", e);
+        }
+      }
+
       router.push(`/order/success/${data.orderId}`);
     } catch (err) {
       console.error(err);
@@ -370,6 +388,34 @@ export default function CheckoutPage() {
                   </h3>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    <label
+                      onClick={() => setPaymentMethod("stripe")}
+                      style={{
+                        padding: "1rem",
+                        borderRadius: "var(--radius-md)",
+                        border: `1.5px solid ${paymentMethod === "stripe" ? "#635BFF" : "var(--border-card)"}`,
+                        background: paymentMethod === "stripe" ? "rgba(99, 91, 255, 0.12)" : "var(--bg-surface)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <div style={{ background: "#635BFF", color: "#FFF", fontWeight: 800, padding: "0.2rem 0.5rem", borderRadius: "4px", fontSize: "0.8rem", letterSpacing: "0.03em" }}>
+                          stripe
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, color: "#FFF", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            Онлайн-оплата картой через Stripe
+                            <span style={{ fontSize: "0.7rem", color: "#A78BFA", background: "rgba(167, 139, 250, 0.15)", padding: "0.1rem 0.4rem", borderRadius: "4px" }}>Этап 7</span>
+                          </div>
+                          <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Visa, Mastercard, тестовые карты Stripe (3D Secure)</div>
+                        </div>
+                      </div>
+                      {paymentMethod === "stripe" && <CheckCircle2 size={18} color="#635BFF" />}
+                    </label>
+
                     <label
                       onClick={() => setPaymentMethod("cash")}
                       style={{
