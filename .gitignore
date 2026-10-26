@@ -43,3 +43,6 @@ next-env.d.ts
 *.sqlite-journal
 prisma/dev.db-journal
 !prisma/dev.db
+
+# archives
+*.zip
