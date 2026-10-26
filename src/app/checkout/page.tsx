@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const [deliveryCity, setDeliveryCity] = useState("Ташкент");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [comment, setComment] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -460,31 +460,6 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       {paymentMethod === "card_on_delivery" && <CheckCircle2 size={18} color="var(--accent-cyan)" />}
-                    </label>
-
-                    <label
-                      onClick={() => setPaymentMethod("payme")}
-                      style={{
-                        padding: "1rem",
-                        borderRadius: "var(--radius-md)",
-                        border: `1.5px solid ${paymentMethod === "payme" ? "var(--accent-cyan)" : "var(--border-card)"}`,
-                        background: paymentMethod === "payme" ? "rgba(0, 229, 255, 0.08)" : "var(--bg-surface)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <div style={{ background: "var(--accent-cyan)", color: "#000", fontWeight: 900, padding: "0.15rem 0.45rem", borderRadius: "4px", fontSize: "0.75rem" }}>
-                          PAYME
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 700, color: "#FFF" }}>Онлайн-оплата Payme / Click</div>
-                          <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Мгновенная оплата через приложение банка</div>
-                        </div>
-                      </div>
-                      {paymentMethod === "payme" && <CheckCircle2 size={18} color="var(--accent-cyan)" />}
                     </label>
                   </div>
                 </div>

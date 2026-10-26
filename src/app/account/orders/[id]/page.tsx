@@ -107,11 +107,35 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                       <strong style={{ fontSize: "0.875rem" }}>Оплата</strong>
                     </div>
                     <div style={{ fontSize: "0.875rem", color: "#FFF" }}>
-                      {order.paymentMethod === "cash" ? "Наличными курьеру" : order.paymentMethod === "card_on_delivery" ? "Картой курьеру" : "Онлайн (Payme)"}
+                      {order.paymentMethod === "cash"
+                        ? "Наличными курьеру"
+                        : order.paymentMethod === "card_on_delivery"
+                        ? "Картой курьеру"
+                        : "Онлайн картой (Stripe)"}
                     </div>
-                    <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>
-                      Статус оплаты: {paymentStatusInfo.label}
+                    <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+                      Статус оплаты: <Badge variant={paymentStatusInfo.color}>{paymentStatusInfo.label}</Badge>
                     </div>
+                    {order.paymentStatus !== "paid" && order.paymentMethod === "stripe" && (
+                      <div style={{ marginTop: "0.75rem" }}>
+                        <Link
+                          href={`/order/stripe-simulator?orderId=${order.id}&sessionId=cs_test_${order.id}&amount=${order.total}&currency=UZS`}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            fontSize: "0.8125rem",
+                            color: "#FFF",
+                            background: "#635BFF",
+                            padding: "0.35rem 0.75rem",
+                            borderRadius: "var(--radius-sm)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          <CreditCard size={14} /> Оплатить через Stripe
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
 

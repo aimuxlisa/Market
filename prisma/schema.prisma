@@ -175,7 +175,7 @@ model Order {
   deliveryCity   String
   deliveryAddress String
   deliveryMethod String      // "standard", "express", "pickup"
-  paymentMethod  String      // "cash", "yookassa", "card_on_delivery"
+  paymentMethod  String      // "stripe", "cash", "card_on_delivery"
   comment        String?
   
   // Order status: pending -> confirmed -> processing -> shipped -> delivered (or cancelled)
@@ -219,7 +219,7 @@ model OrderItem {
 model Payment {
   id                String   @id @default(cuid())
   orderId           String
-  provider          String   // "YOOKASSA", "CASH", "CARD"
+  provider          String   // "STRIPE", "CASH", "CARD"
   providerPaymentId String?
   amount            Int      // in UZS
   currency          String   @default("UZS")
