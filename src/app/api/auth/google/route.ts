@@ -35,10 +35,18 @@ export async function GET(request: NextRequest) {
   const origin = getAppOrigin(request);
   const redirectUri = `${origin}/api/auth/google/callback`;
 
+  // Check if genuine Google Cloud OAuth credentials are configured (not dummy placeholders)
+  const isRealGoogleConfigured =
+    Boolean(clientId && clientSecret) &&
+    !clientId?.includes("your-google-client-id") &&
+    !clientSecret?.includes("your-google-client-secret") &&
+    clientId?.trim() !== "" &&
+    clientSecret?.trim() !== "";
+
   // If real Google Cloud OAuth credentials are configured
-  if (clientId && clientSecret && clientId.trim() !== "") {
+  if (isRealGoogleConfigured) {
     const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    googleAuthUrl.searchParams.set("client_id", clientId);
+    googleAuthUrl.searchParams.set("client_id", clientId!);
     googleAuthUrl.searchParams.set("redirect_uri", redirectUri);
     googleAuthUrl.searchParams.set("response_type", "code");
     googleAuthUrl.searchParams.set("scope", "openid email profile");
@@ -49,8 +57,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(googleAuthUrl.toString());
   }
 
-  // If credentials are not yet configured in .env, redirect to simulated consent page
-  // so the developer and tester can experience the full OAuth flow seamlessly
+  // If real Google Cloud credentials are not yet configured in .env,
+  // redirect to the simulated consent screen so OAuth completes seamlessly
   const consentUrl = new URL("/auth/google-consent", origin);
   consentUrl.searchParams.set("state", state);
   return NextResponse.redirect(consentUrl.toString());

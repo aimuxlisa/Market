@@ -12,18 +12,19 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Nexora Store | Премиальный интернет-магазин электроники в Узбекистане",
+  title: "HAVEN ELECTRONICS | Премиальный интернет-магазин техники в Узбекистане",
   description:
-    "Официальный онлайн-магазин флагманской электроники и техники для дома. Смартфоны, ноутбуки, консоли и бытовая техника с быстрой доставкой по Ташкенту и Узбекистану.",
+    "Официальный онлайн-магазин флагманской электроники и техники. Смартфоны Apple iPhone, Samsung Galaxy, ноутбуки MacBook M4, консоли PlayStation 5 Pro и техника Dyson с гарантией и доставкой по Ташкенту и всему Узбекистану. Цены в сумах.",
   keywords: [
-    "Nexora Store",
-    "электроника Ташкент",
-    "купить iPhone Узбекистан",
-    "интернет-магазин электроники",
-    "ноутбуки",
-    "бытовая техника",
+    "Haven Electronics",
+    "интернет магазин техники Ташкент",
+    "купить iPhone в Ташкенте",
+    "MacBook Pro M4 Ташкент",
+    "Samsung Galaxy S25 Ultra Узбекистан",
+    "электроника цены в сумах",
+    "PlayStation 5 Pro Ташкент",
   ],
-  authors: [{ name: "Nexora Team" }],
+  authors: [{ name: "Haven Electronics Group" }],
 };
 
 export default function RootLayout({

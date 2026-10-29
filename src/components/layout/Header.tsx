@@ -10,13 +10,13 @@ import {
   User,
   Menu,
   X,
+  Phone,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
   ShieldCheck,
   Zap,
-  Phone,
-  LayoutGrid,
-  ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 
@@ -24,24 +24,26 @@ interface HeaderProps {
   favoritesCount?: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  favoritesCount,
-}) => {
+export const Header: React.FC<HeaderProps> = ({ favoritesCount }) => {
   const { totalCount: cartCount } = useCart();
   const { favoritesCount: storedFavCount } = useFavorites();
   const effectiveFavCount = favoritesCount !== undefined ? favoritesCount : storedFavCount;
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [consultModalOpen, setConsultModalOpen] = useState(false);
+  const [consultSent, setConsultSent] = useState(false);
+  
   const pathname = usePathname();
 
-  // Close mobile drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setSearchOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when drawer is open
   useEffect(() => {
-    if (mobileMenuOpen) {
+    if (mobileMenuOpen || consultModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -49,188 +51,228 @@ export const Header: React.FC<HeaderProps> = ({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, consultModalOpen]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+      window.location.href = `/catalog?search=${encodeURIComponent(searchQuery.trim())}`;
     }
   };
 
-  const navCategories = [
-    { name: "Смартфоны и гаджеты", slug: "smartphones" },
-    { name: "Ноутбуки и ПК", slug: "laptops" },
-    { name: "Телевизоры и аудио", slug: "tv-audio" },
-    { name: "Бытовая техника", slug: "appliances" },
-    { name: "Игровые приставки", slug: "gaming" },
-    { name: "Умный дом", slug: "smart-home" },
-  ];
+  const handleConsultSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setConsultSent(true);
+    setTimeout(() => {
+      setConsultSent(false);
+      setConsultModalOpen(false);
+    }, 2200);
+  };
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 60 }}>
-      {/* Top announcement ticker */}
-      <div
+    <>
+      <header
         style={{
-          background: "rgba(5, 4, 13, 0.75)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid var(--border-subtle)",
-          padding: "0.45rem 1rem",
-          fontSize: "0.8125rem",
-          color: "var(--text-secondary)",
-        }}
-      >
-        <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-              <ShieldCheck size={14} color="var(--accent-cyan)" /> Официальная гарантия до 24 мес.
-            </span>
-            <span className="hide-mobile" style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-              <Zap size={14} color="var(--accent-coral)" /> Экспресс-доставка по Ташкенту от 2 часов
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-            <span className="hide-mobile" style={{ color: "var(--text-muted)" }}>Ташкент, Узбекистан</span>
-            <a href="tel:+998712000000" style={{ color: "var(--text-primary)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-              <Phone size={13} color="var(--accent-cyan)" /> +998 (71) 200-00-00
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Main navigation bar */}
-      <div
-        style={{
-          background: "rgba(8, 6, 22, 0.72)",
+          position: "sticky",
+          top: 0,
+          zIndex: 80,
+          background: "rgba(6, 8, 13, 0.88)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid var(--border-card)",
-          padding: "0.85rem 0",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          transition: "all 0.3s ease",
         }}
       >
-        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-          
-          {/* Mobile Menu Hamburger Button */}
-          <button
-            type="button"
-            className="btn-icon mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Открыть меню"
-            title="Меню"
+        <div
+          className="container"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "1.1rem 1.25rem",
+            gap: "1.5rem",
+          }}
+        >
+          {/* Brand Logo: Haven Tech */}
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.85rem",
+              textDecoration: "none",
+            }}
           >
-            <Menu size={22} />
-          </button>
-
-          {/* Brand Logo */}
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.55rem" }}>
+            {/* Elegant Gold 'H' Seal */}
             <div
               style={{
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%)",
+                border: "1.5px solid #C29B63",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: 900,
-                color: "#FFF",
-                fontSize: "1.25rem",
-                boxShadow: "0 0 16px rgba(0, 229, 255, 0.4)",
+                background: "linear-gradient(135deg, rgba(194, 155, 99, 0.15) 0%, rgba(10, 14, 22, 0.8) 100%)",
+                boxShadow: "0 0 16px rgba(194, 155, 99, 0.18)",
               }}
             >
-              N
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1.5rem",
+                  fontWeight: 600,
+                  color: "#DFC5A0",
+                  lineHeight: 1,
+                }}
+              >
+                H
+              </span>
             </div>
+
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: "1.3rem", fontWeight: 800, letterSpacing: "-0.02em", color: "#FFF" }}>
-                NEXORA<span style={{ color: "var(--accent-cyan)" }}>.</span>
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1.35rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  color: "#FFFFFF",
+                  lineHeight: 1.05,
+                }}
+              >
+                HAVEN
               </span>
-              <span style={{ fontSize: "0.625rem", letterSpacing: "0.15em", color: "var(--text-muted)", textTransform: "uppercase", marginTop: "-3px" }}>
-                Store · Uzbekistan
+              <span
+                style={{
+                  fontSize: "0.55rem",
+                  letterSpacing: "0.3em",
+                  color: "#C29B63",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  marginTop: "2px",
+                }}
+              >
+                PREMIUM TECH
               </span>
             </div>
           </Link>
 
-          {/* Catalog Button (Desktop) */}
-          <Link href="/catalog" className="desktop-catalog-btn">
-            <Button variant="secondary" size="md" leftIcon={<LayoutGrid size={18} />}>
-              Каталог
-            </Button>
-          </Link>
-
-          {/* Search Bar */}
-          <form
-            onSubmit={handleSearchSubmit}
+          {/* Desktop Navigation Links */}
+          <nav
+            className="hide-mobile"
             style={{
-              flex: 1,
-              maxWidth: "540px",
-              position: "relative",
               display: "flex",
               alignItems: "center",
+              gap: "2rem",
             }}
           >
-            <Search
-              size={18}
+            <Link
+              href="/catalog"
               style={{
-                position: "absolute",
-                left: "1rem",
-                color: "var(--text-muted)",
-                pointerEvents: "none",
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Поиск по товарам (iPhone 16, Dyson, PS5, MacBook)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input"
-              style={{
-                paddingLeft: "2.75rem",
-                paddingRight: "5.5rem",
-                height: "44px",
-                borderRadius: "var(--radius-full)",
-                background: "var(--bg-surface)",
-                fontSize: "0.875rem",
-              }}
-            />
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              style={{
-                position: "absolute",
-                right: "4px",
-                borderRadius: "var(--radius-full)",
-                padding: "0.4rem 0.95rem",
-                fontWeight: 700,
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: pathname === "/catalog" ? "#DFC5A0" : "#CBD5E1",
+                transition: "color 0.2s ease",
               }}
             >
-              Найти
-            </button>
-          </form>
+              Каталог
+            </Link>
+            <Link
+              href="/catalog?category=smartphones"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "#CBD5E1",
+                transition: "color 0.2s ease",
+              }}
+            >
+              Смартфоны
+            </Link>
+            <Link
+              href="/catalog?category=laptops"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "#CBD5E1",
+                transition: "color 0.2s ease",
+              }}
+            >
+              Ноутбуки & ПК
+            </Link>
+            <Link
+              href="/catalog?category=tv-audio"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "#CBD5E1",
+                transition: "color 0.2s ease",
+              }}
+            >
+              ТВ & Аудио
+            </Link>
+            <Link
+              href="/about"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "#CBD5E1",
+                transition: "color 0.2s ease",
+              }}
+            >
+              О компании
+            </Link>
+          </nav>
 
-          {/* Actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          {/* Right Header Controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+            {/* Search Trigger */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="btn-icon"
+              aria-label="Поиск техники"
+              title="Поиск техники"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+                background: searchOpen ? "rgba(194, 155, 99, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                borderColor: searchOpen ? "#C29B63" : "rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              <Search size={17} color={searchOpen ? "#DFC5A0" : "#CBD5E1"} />
+            </button>
+
+            {/* Favorites / Wishlist */}
             <Link href="/favorites">
               <button
                 type="button"
                 className="btn-icon"
                 aria-label="Избранное"
                 title="Избранное"
-                style={{ position: "relative" }}
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "50%",
+                  position: "relative",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  borderColor: "rgba(255, 255, 255, 0.1)",
+                }}
               >
-                <Heart size={20} />
+                <Heart size={17} color="#CBD5E1" />
                 {effectiveFavCount > 0 && (
                   <span
                     style={{
                       position: "absolute",
-                      top: -4,
-                      right: -4,
-                      background: "var(--accent-coral)",
-                      color: "#FFF",
-                      fontSize: "0.6875rem",
-                      fontWeight: 700,
-                      width: 18,
-                      height: 18,
+                      top: -3,
+                      right: -3,
+                      background: "#C29B63",
+                      color: "#06080D",
+                      fontSize: "0.625rem",
+                      fontWeight: 800,
+                      width: 17,
+                      height: 17,
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
@@ -243,27 +285,35 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </Link>
 
+            {/* Cart */}
             <Link href="/cart">
               <button
                 type="button"
                 className="btn-icon"
                 aria-label="Корзина"
                 title="Корзина"
-                style={{ position: "relative" }}
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "50%",
+                  position: "relative",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  borderColor: "rgba(255, 255, 255, 0.1)",
+                }}
               >
-                <ShoppingBag size={20} />
+                <ShoppingBag size={17} color="#CBD5E1" />
                 {cartCount > 0 && (
                   <span
                     style={{
                       position: "absolute",
-                      top: -4,
-                      right: -4,
-                      background: "var(--accent-cyan)",
-                      color: "var(--text-inverse)",
-                      fontSize: "0.6875rem",
+                      top: -3,
+                      right: -3,
+                      background: "#DFC5A0",
+                      color: "#06080D",
+                      fontSize: "0.625rem",
                       fontWeight: 800,
-                      width: 18,
-                      height: 18,
+                      width: 17,
+                      height: 17,
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
@@ -276,189 +326,474 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </Link>
 
+            {/* Account */}
             <Link href="/account" className="hide-mobile">
               <button
                 type="button"
                 className="btn-icon"
-                aria-label="Личный кабинет"
+                aria-label="Кабинет"
                 title="Личный кабинет"
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "50%",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  borderColor: "rgba(255, 255, 255, 0.1)",
+                }}
               >
-                <User size={20} />
+                <User size={17} color="#CBD5E1" />
               </button>
             </Link>
-          </div>
-        </div>
-      </div>
 
-      {/* Categories Bar */}
-      <div
-        style={{
-          background: "rgba(12, 9, 28, 0.68)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          borderBottom: "1px solid var(--border-subtle)",
-          padding: "0.55rem 0",
-          overflowX: "auto",
-        }}
-        className="categories-scroll-bar"
-      >
-        <div
-          className="container"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "1.35rem",
-            whiteSpace: "nowrap",
-            fontSize: "0.875rem",
-          }}
-        >
-          <Link
-            href="/catalog"
-            style={{
-              color: "var(--accent-cyan)",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              gap: "0.35rem",
-            }}
-          >
-            Все категории
-          </Link>
-          {navCategories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/catalog/${cat.slug}`}
+            {/* Primary Action Button: Consultation / Tech Advisor */}
+            <button
+              type="button"
+              onClick={() => setConsultModalOpen(true)}
+              className="btn btn-primary hide-mobile"
               style={{
-                color: pathname === `/catalog/${cat.slug}` ? "var(--accent-cyan)" : "var(--text-secondary)",
-                fontWeight: pathname === `/catalog/${cat.slug}` ? 700 : 500,
+                background: "#C29B63",
+                color: "#0B0F17",
+                padding: "0.6rem 1.35rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                borderRadius: "9999px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.55rem",
+                boxShadow: "0 4px 18px rgba(194, 155, 99, 0.3)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
               }}
             >
-              {cat.name}
-            </Link>
-          ))}
-          <span style={{ marginLeft: "auto", color: "var(--accent-coral)", fontWeight: 700 }}>
-            🔥 Скидки недели
-          </span>
-        </div>
-      </div>
+              <span>Консультация эксперта</span>
+              <span
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "rgba(0, 0, 0, 0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ArrowRight size={13} color="#0B0F17" />
+              </span>
+            </button>
 
-      {/* Mobile Drawer Backdrop & Sidebar */}
+            {/* Mobile Menu Trigger */}
+            <button
+              type="button"
+              className="btn-icon mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Открыть меню"
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: "50%",
+              }}
+            >
+              <Menu size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* Expandable Search Drawer */}
+        {searchOpen && (
+          <div
+            style={{
+              padding: "1rem 1.25rem 1.5rem",
+              background: "rgba(8, 12, 19, 0.96)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+              borderBottom: "1px solid rgba(194, 155, 99, 0.25)",
+              animation: "fadeIn 0.25s ease-out",
+            }}
+          >
+            <div className="container" style={{ maxWidth: "760px" }}>
+              <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "0.75rem" }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <Search
+                    size={18}
+                    style={{
+                      position: "absolute",
+                      left: "1rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#C29B63",
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Поиск по технике: iPhone 16 Pro, MacBook M4, Galaxy S25, PlayStation 5, Dyson..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    style={{
+                      width: "100%",
+                      padding: "0.85rem 1rem 0.85rem 2.85rem",
+                      borderRadius: "9999px",
+                      background: "rgba(255, 255, 255, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      color: "#FFFFFF",
+                      fontSize: "0.9375rem",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    background: "#C29B63",
+                    color: "#06080D",
+                    borderRadius: "9999px",
+                    padding: "0 1.5rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Найти
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
           style={{
             position: "fixed",
             inset: 0,
             zIndex: 100,
-            background: "rgba(4, 7, 14, 0.8)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(6, 8, 13, 0.96)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             display: "flex",
+            flexDirection: "column",
+            padding: "1.5rem",
           }}
-          onClick={() => setMobileMenuOpen(false)}
         >
-          <div
-            style={{
-              width: "82%",
-              maxWidth: "340px",
-              height: "100%",
-              background: "var(--bg-secondary)",
-              borderRight: "1px solid var(--border-card)",
-              padding: "1.5rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              overflowY: "auto",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drawer Header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "8px",
+                  border: "1.5px solid #C29B63",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(194, 155, 99, 0.1)",
+                }}
+              >
+                <span
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "8px",
-                    background: "linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 900,
-                    color: "#FFF",
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.45rem",
+                    fontWeight: 700,
+                    color: "#DFC5A0",
                   }}
                 >
-                  N
-                </div>
-                <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#FFF" }}>
-                  NEXORA STORE
+                  H
                 </span>
               </div>
-              <button
-                type="button"
-                className="btn-icon"
-                onClick={() => setMobileMenuOpen(false)}
-                aria-label="Закрыть меню"
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "1.25rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  color: "#FFFFFF",
+                }}
               >
-                <X size={20} />
-              </button>
+                HAVEN ELECTRONICS
+              </span>
             </div>
 
-            {/* Quick Actions */}
-            <div style={{ display: "flex", gap: "0.75rem" }}>
-              <Link href="/catalog" style={{ flex: 1 }} onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="cyan" size="sm" style={{ width: "100%" }} leftIcon={<LayoutGrid size={16} />}>
-                  Каталог
-                </Button>
-              </Link>
-              <Link href="/account" style={{ flex: 1 }} onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="secondary" size="sm" style={{ width: "100%" }} leftIcon={<User size={16} />}>
-                  Кабинет
-                </Button>
-              </Link>
-            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="btn-icon"
+              aria-label="Закрыть меню"
+              style={{ borderRadius: "50%" }}
+            >
+              <X size={22} />
+            </button>
+          </div>
 
-            {/* Category Navigation List */}
-            <div>
-              <h4 style={{ fontSize: "0.75rem", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.08em", marginBottom: "0.75rem" }}>
-                Категории товаров
-              </h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-                {navCategories.map((cat) => (
-                  <Link
-                    key={cat.slug}
-                    href={`/catalog/${cat.slug}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "0.75rem 0.9rem",
-                      borderRadius: "var(--radius-md)",
-                      background: pathname === `/catalog/${cat.slug}` ? "var(--bg-surface)" : "transparent",
-                      color: pathname === `/catalog/${cat.slug}` ? "var(--accent-cyan)" : "var(--text-primary)",
-                      fontSize: "0.9375rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <span>{cat.name}</span>
-                    <ChevronRight size={16} color="var(--text-muted)" />
-                  </Link>
-                ))}
-              </div>
-            </div>
+          <nav style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <Link
+              href="/catalog"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.35rem",
+                color: "#FFFFFF",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              Каталог товаров
+            </Link>
+            <Link
+              href="/catalog?category=smartphones"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.35rem",
+                color: "#FFFFFF",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              Смартфоны & Гаджеты
+            </Link>
+            <Link
+              href="/catalog?category=laptops"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.35rem",
+                color: "#FFFFFF",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              Ноутбуки & Компьютеры
+            </Link>
+            <Link
+              href="/catalog?category=tv-audio"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.35rem",
+                color: "#FFFFFF",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              Телевизоры & Аудио
+            </Link>
+            <Link
+              href="/about"
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.35rem",
+                color: "#FFFFFF",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              О магазине
+            </Link>
+          </nav>
 
-            {/* Support Information */}
-            <div style={{ marginTop: "auto", borderTop: "1px solid var(--border-subtle)", paddingTop: "1.25rem" }}>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Круглосуточная поддержка:</p>
-              <a href="tel:+998712000000" style={{ color: "var(--accent-cyan)", fontWeight: 700, fontSize: "1rem" }}>
-                +998 (71) 200-00-00
-              </a>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.75rem", marginTop: "0.25rem" }}>
-                г. Ташкент, доставка по всему Узбекистану
-              </p>
-            </div>
+          <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setConsultModalOpen(true);
+              }}
+              className="btn btn-primary"
+              style={{
+                background: "#C29B63",
+                color: "#06080D",
+                borderRadius: "9999px",
+                padding: "0.95rem",
+                fontWeight: 600,
+                fontSize: "1rem",
+              }}
+            >
+              Консультация эксперта <ArrowRight size={16} />
+            </button>
+            <Link href="/account" style={{ textAlign: "center", color: "#CBD5E1", fontSize: "0.9375rem" }}>
+              Личный кабинет
+            </Link>
           </div>
         </div>
       )}
-    </header>
+
+      {/* Book a Consultation Modal */}
+      {consultModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 110,
+            background: "rgba(4, 6, 10, 0.82)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+          }}
+          onClick={() => setConsultModalOpen(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "520px",
+              background: "rgba(14, 20, 32, 0.95)",
+              border: "1px solid rgba(194, 155, 99, 0.35)",
+              borderRadius: "24px",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(194, 155, 99, 0.15)",
+              padding: "2.5rem 2rem",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setConsultModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: "1.25rem",
+                right: "1.25rem",
+                color: "#CBD5E1",
+                background: "rgba(255, 255, 255, 0.05)",
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <X size={18} />
+            </button>
+
+            {consultSent ? (
+              <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
+                <CheckCircle2 size={54} color="#C29B63" style={{ margin: "0 auto 1.25rem" }} />
+                <h3
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.85rem",
+                    color: "#FFFFFF",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  Заявка принята
+                </h3>
+                <p style={{ color: "#CBD5E1", fontSize: "0.9375rem" }}>
+                  Наш эксперт свяжется с вами в течение 15 минут для консультации по выбору техники и оформлению.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: "1.75rem" }}>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      letterSpacing: "0.18em",
+                      color: "#C29B63",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      display: "block",
+                      marginBottom: "0.35rem",
+                    }}
+                  >
+                    ПЕРСОНАЛЬНЫЙ СЕРВИС
+                  </span>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: "1.75rem",
+                      color: "#FFFFFF",
+                      fontWeight: 600,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    Консультация по подбору техники
+                  </h3>
+                  <p style={{ color: "#8E9BAE", fontSize: "0.875rem", marginTop: "0.5rem" }}>
+                    Поможем выбрать оптимальную конфигурацию, оформить рассрочку или корпоративный заказ.
+                  </p>
+                </div>
+
+                <form onSubmit={handleConsultSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div>
+                    <label style={{ fontSize: "0.8125rem", color: "#CBD5E1", display: "block", marginBottom: "0.4rem" }}>
+                      Ваше имя
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="Например: Алишер"
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem 1rem",
+                        borderRadius: "12px",
+                        background: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#FFFFFF",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "0.8125rem", color: "#CBD5E1", display: "block", marginBottom: "0.4rem" }}>
+                      Номер телефона
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="+998 90 123 45 67"
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem 1rem",
+                        borderRadius: "12px",
+                        background: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#FFFFFF",
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "0.8125rem", color: "#CBD5E1", display: "block", marginBottom: "0.4rem" }}>
+                      Интересующая категория
+                    </label>
+                    <select
+                      style={{
+                        width: "100%",
+                        padding: "0.75rem 1rem",
+                        borderRadius: "12px",
+                        background: "#0E1422",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#FFFFFF",
+                        outline: "none",
+                      }}
+                    >
+                      <option value="smartphones">Смартфоны (Apple iPhone, Samsung, Xiaomi)</option>
+                      <option value="laptops">Ноутбуки (MacBook M4, ASUS ROG, Dell XPS)</option>
+                      <option value="tv">OLED Телевизоры и Hi-Fi акустика</option>
+                      <option value="gaming">PlayStation 5 Pro & гейминг</option>
+                      <option value="credit">Оформление рассрочки без переплат</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{
+                      background: "#C29B63",
+                      color: "#06080D",
+                      borderRadius: "9999px",
+                      padding: "0.85rem",
+                      fontWeight: 600,
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    Заказать звонок эксперта <ArrowRight size={16} />
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 };

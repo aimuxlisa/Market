@@ -41,14 +41,36 @@ export const MobileNav: React.FC<MobileNavProps> = ({
             key={item.href}
             href={item.href}
             className={`mobile-nav-item ${isActive ? "active" : ""}`}
+            style={{
+              color: isActive ? "#DFC5A0" : "#8E9BAE",
+            }}
           >
             <div style={{ position: "relative" }}>
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} />
+              <Icon size={20} strokeWidth={isActive ? 2.2 : 1.7} />
               {Boolean(item.badge && item.badge > 0) && (
-                <span className="mobile-nav-badge">{item.badge}</span>
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -8,
+                    background: "#C29B63",
+                    color: "#06080D",
+                    fontSize: "0.625rem",
+                    fontWeight: 800,
+                    minWidth: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 4px",
+                  }}
+                >
+                  {item.badge}
+                </span>
               )}
             </div>
-            <span>{item.label}</span>
+            <span style={{ fontSize: "0.6875rem", fontWeight: isActive ? 600 : 400 }}>{item.label}</span>
           </Link>
         );
       })}

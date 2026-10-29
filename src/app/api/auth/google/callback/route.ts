@@ -52,16 +52,23 @@ export async function GET(request: NextRequest) {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const redirectUri = `${origin}/api/auth/google/callback`;
 
+  const isRealGoogleConfigured =
+    Boolean(clientId && clientSecret) &&
+    !clientId?.includes("your-google-client-id") &&
+    !clientSecret?.includes("your-google-client-secret") &&
+    clientId?.trim() !== "" &&
+    clientSecret?.trim() !== "";
+
   // 2. Real Google OAuth Token Exchange if credentials configured
-  if (clientId && clientSecret && clientId.trim() !== "" && !code.startsWith("mock_")) {
+  if (isRealGoogleConfigured && !code.startsWith("mock_")) {
     try {
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
           code,
-          client_id: clientId,
-          client_secret: clientSecret,
+          client_id: clientId!,
+          client_secret: clientSecret!,
           redirect_uri: redirectUri,
           grant_type: "authorization_code",
         }),

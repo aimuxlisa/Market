@@ -2,43 +2,38 @@ import React from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ProductCard } from "@/components/ui/ProductCard";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { HomeHeroSection } from "@/components/home/HomeHeroSection";
+import { FeaturedCarousel } from "@/components/catalog/FeaturedCarousel";
+import { HomeCatalogSection } from "@/components/catalog/HomeCatalogSection";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import {
-  Smartphone,
-  Laptop,
-  Tv,
-  Refrigerator,
-  Gamepad2,
-  Home as HomeIcon,
-  Sparkles,
-  ArrowRight,
-  Flame,
-} from "lucide-react";
+import { Gem, Zap, ShieldCheck, CreditCard, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Fetch real data from Prisma with safe fallback
-  type CategoryWithIcon = { id: string; name: string; slug: string; icon: string | null };
-  type ProductWithImages = Prisma.ProductGetPayload<{
-    include: { images: { orderBy: { sortOrder: "asc" }; take: 1 } };
-  }>;
-  type PromotionItem = Awaited<ReturnType<typeof prisma.promotion.findMany>>[number];
-
-  let categories: CategoryWithIcon[] = [];
-  let products: ProductWithImages[] = [];
-  let promotions: PromotionItem[] = [];
+  // Fetch real data from Prisma
+  let categories: Array<{ id: string; name: string; slug: string }> = [];
+  let allProducts: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    brand: string;
+    price: number;
+    oldPrice?: number | null;
+    rating?: number;
+    reviewsCount?: number;
+    imageUrl?: string;
+    isNew?: boolean;
+    isFeatured?: boolean;
+    stock: number;
+    categoryId?: string;
+  }> = [];
 
   try {
-    const results = await Promise.all([
+    const [dbCategories, dbProducts] = await Promise.all([
       prisma.category.findMany({
         where: { isActive: true },
         orderBy: { sortOrder: "asc" },
-        take: 6,
       }),
       prisma.product.findMany({
         where: { status: "PUBLISHED" },
@@ -46,291 +41,337 @@ export default async function HomePage() {
           images: { orderBy: { sortOrder: "asc" }, take: 1 },
         },
         orderBy: { createdAt: "desc" },
-        take: 8,
-      }),
-      prisma.promotion.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: "asc" },
-        take: 4,
+        take: 46,
       }),
     ]);
-    categories = results[0];
-    products = results[1];
-    promotions = results[2];
-  } catch (err) {
-    console.error("Database connection error on HomePage:", err);
+
+    categories = dbCategories.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+    }));
+
+    allProducts = dbProducts.map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      brand: p.brand,
+      price: p.price,
+      oldPrice: p.oldPrice,
+      rating: p.rating,
+      reviewsCount: p.reviewsCount,
+      imageUrl: p.images[0]?.url || "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=600&fit=crop",
+      isNew: p.isNew,
+      isFeatured: p.isFeatured,
+      stock: p.stock,
+      categoryId: p.categoryId,
+    }));
+  } catch (error) {
+    console.error("Database query failed on HomePage:", error);
   }
 
-  const categoryIcons: Record<string, React.ReactNode> = {
-    Smartphone: <Smartphone size={20} />,
-    Laptop: <Laptop size={20} />,
-    Tv: <Tv size={20} />,
-    Refrigerator: <Refrigerator size={20} />,
-    Gamepad2: <Gamepad2 size={20} />,
-    Home: <HomeIcon size={20} />,
+  // Fallback flagship product if database empty
+  const defaultFlagship = {
+    id: "flagship-1",
+    name: "MacBook Pro 16\" M4 Max 36GB / 1TB Space Black",
+    slug: "macbook-pro-14-m4-pro-24gb-512gb-space-black",
+    brand: "Apple",
+    price: 39900000,
+    oldPrice: 42000000,
+    imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&fit=crop",
+    stock: 8,
   };
 
-  const heroPromo = promotions[0];
-  const sidePromo1 = promotions[1];
-  const sidePromo2 = promotions[2];
+  const flagshipProduct =
+    allProducts.find((p) => p.isFeatured && p.brand === "Apple") ||
+    allProducts[0] ||
+    defaultFlagship;
+
+  // Curated list for the carousel (featured and top items, at least 12 products)
+  const carouselProducts =
+    allProducts.length > 0
+      ? allProducts.slice(0, 16)
+      : [
+          defaultFlagship,
+          {
+            id: "tech-2",
+            name: "iPhone 16 Pro Max 256GB Desert Titanium",
+            slug: "iphone-16-pro-max-256gb-desert-titanium",
+            brand: "Apple",
+            price: 16490000,
+            oldPrice: 17990000,
+            imageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&fit=crop",
+            stock: 12,
+            isFeatured: true,
+          },
+          {
+            id: "tech-3",
+            name: "Samsung Galaxy S25 Ultra 512GB Titanium Black",
+            slug: "samsung-galaxy-s25-ultra-512gb-titanium-black",
+            brand: "Samsung",
+            price: 15890000,
+            oldPrice: 16990000,
+            imageUrl: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&fit=crop",
+            stock: 15,
+            isNew: true,
+          },
+          {
+            id: "tech-4",
+            name: "Sony PlayStation 5 Pro 2TB White Edition",
+            slug: "sony-playstation-5-pro-2tb",
+            brand: "Sony",
+            price: 11200000,
+            oldPrice: 12500000,
+            imageUrl: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=800&fit=crop",
+            stock: 6,
+            isNew: true,
+          },
+        ];
 
   return (
     <>
       <Header />
 
-      <main className="main-content">
-        {/* Bento Grid Hero Section */}
-        <section style={{ padding: "2rem 0 3.5rem" }}>
+      <main className="main-content" style={{ overflow: "hidden" }}>
+        
+        {/* 1. HERO SECTION & FLOATING SEARCH BAR (from photo reference) */}
+        <HomeHeroSection
+          flagship={flagshipProduct}
+          categories={categories}
+        />
+
+        {/* 2. INTERACTIVE FEATURED CAROUSEL / SLIDER (from photo reference) */}
+        <FeaturedCarousel products={carouselProducts} />
+
+        {/* 3. FULL TECH CATALOG SECTION ("больше товара") */}
+        {allProducts.length > 0 && (
+          <HomeCatalogSection
+            products={allProducts}
+            categories={categories}
+          />
+        )}
+
+        {/* 4. VALUE PROPOSITION CARDS (4 Columns matching Haven photo layout) */}
+        <section style={{ padding: "3rem 0 6rem" }}>
           <div className="container">
-            <div className="bento-grid">
-              
-              {/* Main Hero Card */}
-              <div
-                className="bento-item bento-hero"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(8, 8, 16, 0.94) 0%, rgba(14, 14, 28, 0.65) 100%), url(${heroPromo?.desktopImage || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&h=600&fit=crop"})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  padding: "3rem 2.5rem",
-                  justifyContent: "space-between",
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
-                }}
-              >
-                <div>
-                  <div style={{ marginBottom: "1rem" }}>
-                    <Badge variant="coral">
-                      <Sparkles size={12} /> {heroPromo?.badge || "Флагманы 2026"}
-                    </Badge>
-                  </div>
-                  <h1
-                    style={{
-                      fontSize: "clamp(2rem, 3.2vw, 3rem)",
-                      fontWeight: 800,
-                      lineHeight: 1.15,
-                      letterSpacing: "-0.025em",
-                      maxWidth: "560px",
-                      marginBottom: "1rem",
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    {heroPromo?.title || "Флагманы 2026: Новая эра скорости"}
-                  </h1>
-                  <p
-                    style={{
-                      color: "var(--text-secondary)",
-                      fontSize: "1.0625rem",
-                      maxWidth: "480px",
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {heroPromo?.subtitle || "iPhone 16 Pro, Galaxy S25 и MacBook Pro M4 уже в наличии с официальной гарантией."}
-                  </p>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", marginTop: "2rem" }}>
-                  <Link href={heroPromo?.href || "/catalog/smartphones"}>
-                    <Button variant="primary" size="lg" rightIcon={<ArrowRight size={18} />}>
-                      Перейти в каталог
-                    </Button>
-                  </Link>
-                  <Link href="/catalog">
-                    <Button variant="secondary" size="lg">
-                      Все спецпредложения
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Side Card 1 */}
-              <div
-                className="bento-item bento-side-1"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.65) 100%), url(${sidePromo1?.desktopImage || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=400&fit=crop"})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  padding: "1.75rem",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  <Badge variant="purple">{sidePromo1?.badge || "Выгода до 15%"}</Badge>
-                  <h3
-                    style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.75rem", color: "#FFF", letterSpacing: "-0.015em" }}
-                  >
-                    {sidePromo1?.title || "MacBook & Pro Laptops"}
-                  </h3>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.35rem" }}>
-                    {sidePromo1?.subtitle || "Для дизайнеров, разработчиков и креаторов"}
-                  </p>
-                </div>
-                <div>
-                  <Link href={sidePromo1?.href || "/catalog/laptops"}>
-                    <Button variant="cyan" size="sm" rightIcon={<ArrowRight size={14} />}>
-                      Смотреть
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Side Card 2 */}
-              <div
-                className="bento-item bento-side-2"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(12, 12, 24, 0.94) 0%, rgba(20, 20, 36, 0.65) 100%), url(${sidePromo2?.desktopImage || "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=400&fit=crop"})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  padding: "1.75rem",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  <Badge variant="cyan">{sidePromo2?.badge || "Спецпредложение"}</Badge>
-                  <h3
-                    style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.75rem", color: "#FFF", letterSpacing: "-0.015em" }}
-                  >
-                    {sidePromo2?.title || "PlayStation 5 Slim Bundle"}
-                  </h3>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.35rem" }}>
-                    {sidePromo2?.subtitle || "Второй геймпад в подарок к каждой консоли"}
-                  </p>
-                </div>
-                <div>
-                  <Link href={sidePromo2?.href || "/product/sony-playstation-5-slim-1tb-bundle"}>
-                    <Button variant="outline" size="sm" rightIcon={<ArrowRight size={14} />}>
-                      Подробнее
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Categories Bar / Grid */}
-        <section style={{ padding: "1.5rem 0 3rem" }}>
-          <div className="container">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h2 style={{ fontSize: "1.375rem", fontWeight: 700, color: "#FFF", letterSpacing: "-0.015em" }}>
-                Популярные категории
-              </h2>
-              <Link href="/catalog" style={{ color: "var(--accent-cyan)", fontSize: "0.875rem", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                Весь каталог <ArrowRight size={14} />
-              </Link>
-            </div>
-
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: "1rem",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                gap: "1.25rem",
               }}
             >
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/catalog/${cat.slug}`}
+              {/* Card 1: Official Warranty */}
+              <div
+                style={{
+                  background: "rgba(13, 19, 31, 0.65)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "all 0.3s ease",
+                }}
+                className="value-card-hover"
+              >
+                <div style={{ color: "#C29B63", marginBottom: "1.5rem" }}>
+                  <Gem size={26} />
+                </div>
+                <h4
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.85rem",
-                    padding: "1rem 1.25rem",
-                    background: "var(--bg-card)",
-                    border: "1px solid var(--border-card)",
-                    borderRadius: "var(--radius-lg)",
-                    transition: "all var(--transition-fast)",
+                    fontFamily: "var(--font-main)",
+                    fontSize: "1.15rem",
+                    color: "#FFFFFF",
+                    fontWeight: 600,
+                    marginBottom: "0.5rem",
+                    lineHeight: 1.3,
                   }}
-                  className="category-pill"
                 >
-                  <div
+                  Официальная гарантия
+                </h4>
+                <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.5, marginBottom: "1.75rem" }}>
+                  До 24 месяцев авторизованной поддержки на всю технику.
+                </p>
+                <div style={{ marginTop: "auto" }}>
+                  <span
                     style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "10px",
-                      background: "rgba(0, 229, 255, 0.08)",
-                      border: "1px solid rgba(0, 229, 255, 0.15)",
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "var(--accent-cyan)",
+                      color: "#CBD5E1",
+                      background: "rgba(255, 255, 255, 0.03)",
                     }}
                   >
-                    {categoryIcons[cat.icon || ""] || <Smartphone size={20} />}
-                  </div>
-                  <div>
-                    <h4 style={{ fontSize: "0.875rem", fontWeight: 600, color: "#FFF" }}>
-                      {cat.name}
-                    </h4>
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                      Перейти
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Products Section */}
-        <section style={{ padding: "1.5rem 0 4rem" }}>
-          <div className="container">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-end",
-                marginBottom: "2rem",
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-                  <Flame size={18} color="var(--accent-coral)" />
-                  <span style={{ color: "var(--accent-coral)", fontWeight: 700, fontSize: "0.8125rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    Хиты продаж и новинки
+                    <ArrowRight size={14} />
                   </span>
                 </div>
-                <h2
-                  style={{ fontSize: "clamp(1.5rem, 2.2vw, 1.875rem)", fontWeight: 800, color: "#FFF", letterSpacing: "-0.02em" }}
-                >
-                  Рекомендуемые товары
-                </h2>
               </div>
 
-              <Link href="/catalog">
-                <Button variant="secondary" size="sm" rightIcon={<ArrowRight size={14} />}>
-                  Все товары ({products.length}+)
-                </Button>
-              </Link>
-            </div>
+              {/* Card 2: Express Delivery */}
+              <div
+                style={{
+                  background: "rgba(13, 19, 31, 0.65)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "all 0.3s ease",
+                }}
+                className="value-card-hover"
+              >
+                <div style={{ color: "#C29B63", marginBottom: "1.5rem" }}>
+                  <Zap size={26} />
+                </div>
+                <h4
+                  style={{
+                    fontFamily: "var(--font-main)",
+                    fontSize: "1.15rem",
+                    color: "#FFFFFF",
+                    fontWeight: 600,
+                    marginBottom: "0.5rem",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  Экспресс-доставка
+                </h4>
+                <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.5, marginBottom: "1.75rem" }}>
+                  По Ташкенту от 2 часов и бережно по всему Узбекистану.
+                </p>
+                <div style={{ marginTop: "auto" }}>
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#CBD5E1",
+                      background: "rgba(255, 255, 255, 0.03)",
+                    }}
+                  >
+                    <ArrowRight size={14} />
+                  </span>
+                </div>
+              </div>
 
-            {/* Products Grid */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                gap: "1.5rem",
-              }}
-            >
-              {products.map((prod) => (
-                <ProductCard
-                  key={prod.id}
-                  id={prod.id}
-                  name={prod.name}
-                  slug={prod.slug}
-                  brand={prod.brand}
-                  price={prod.price}
-                  oldPrice={prod.oldPrice}
-                  rating={prod.rating}
-                  reviewsCount={prod.reviewsCount}
-                  imageUrl={prod.images[0]?.url}
-                  isNew={prod.isNew}
-                  isFeatured={prod.isFeatured}
-                  stock={prod.stock}
-                />
-              ))}
+              {/* Card 3: 100% Original */}
+              <div
+                style={{
+                  background: "rgba(13, 19, 31, 0.65)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "all 0.3s ease",
+                }}
+                className="value-card-hover"
+              >
+                <div style={{ color: "#C29B63", marginBottom: "1.5rem" }}>
+                  <ShieldCheck size={26} />
+                </div>
+                <h4
+                  style={{
+                    fontFamily: "var(--font-main)",
+                    fontSize: "1.15rem",
+                    color: "#FFFFFF",
+                    fontWeight: 600,
+                    marginBottom: "0.5rem",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  100% Оригинал
+                </h4>
+                <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.5, marginBottom: "1.75rem" }}>
+                  Прямые поставки от официальных брендов в пломбах.
+                </p>
+                <div style={{ marginTop: "auto" }}>
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#CBD5E1",
+                      background: "rgba(255, 255, 255, 0.03)",
+                    }}
+                  >
+                    <ArrowRight size={14} />
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 4: Payment in UZS & Installments */}
+              <div
+                style={{
+                  background: "rgba(13, 19, 31, 0.65)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "all 0.3s ease",
+                }}
+                className="value-card-hover"
+              >
+                <div style={{ color: "#C29B63", marginBottom: "1.5rem" }}>
+                  <CreditCard size={26} />
+                </div>
+                <h4
+                  style={{
+                    fontFamily: "var(--font-main)",
+                    fontSize: "1.15rem",
+                    color: "#FFFFFF",
+                    fontWeight: 600,
+                    marginBottom: "0.5rem",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  Оплата и рассрочка
+                </h4>
+                <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.5, marginBottom: "1.75rem" }}>
+                  Uzcard, Humo, Visa и честная рассрочка 0% без переплат.
+                </p>
+                <div style={{ marginTop: "auto" }}>
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#CBD5E1",
+                      background: "rgba(255, 255, 255, 0.03)",
+                    }}
+                  >
+                    <ArrowRight size={14} />
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
+
       </main>
 
       <Footer />

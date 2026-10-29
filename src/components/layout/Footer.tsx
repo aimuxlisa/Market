@@ -1,299 +1,308 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import { ShieldCheck, Truck, RotateCcw, Headphones, CreditCard, Banknote } from "lucide-react";
+import { ArrowRight, Mail, Phone, MapPin, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 
 export const Footer: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      setSubscribed(true);
+      setTimeout(() => {
+        setEmail("");
+        setSubscribed(false);
+      }, 3000);
+    }
+  };
+
   return (
     <footer
       style={{
-        marginTop: "5rem",
-        background: "linear-gradient(180deg, rgba(8, 6, 22, 0.65) 0%, rgba(4, 3, 10, 0.88) 100%)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--border-card)",
-        paddingTop: "3.5rem",
-        paddingBottom: "2.5rem",
+        background: "linear-gradient(180deg, rgba(8, 12, 19, 0.95) 0%, #04060A 100%)",
+        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+        paddingTop: "4.5rem",
+        paddingBottom: "3rem",
+        color: "#CBD5E1",
+        position: "relative",
       }}
     >
-      {/* Advantage Features row */}
-      <div className="container" style={{ marginBottom: "3.5rem" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "1.5rem",
-            background: "var(--bg-card)",
-            padding: "2rem",
-            borderRadius: "var(--radius-xl)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "12px",
-                background: "rgba(0, 229, 255, 0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--accent-cyan)",
-              }}
-            >
-              <Truck size={24} />
-            </div>
-            <div>
-              <h5 style={{ fontWeight: 700, fontSize: "0.9375rem" }}>Быстрая доставка</h5>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
-                По Ташкенту от 2 часов и по всему Узбекистану
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "12px",
-                background: "rgba(138, 43, 226, 0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--accent-violet)",
-              }}
-            >
-              <ShieldCheck size={24} />
-            </div>
-            <div>
-              <h5 style={{ fontWeight: 700, fontSize: "0.9375rem" }}>100% Оригинал</h5>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
-                Официальная гарантия до 24 месяцев
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "12px",
-                background: "rgba(255, 77, 77, 0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--accent-coral)",
-              }}
-            >
-              <RotateCcw size={24} />
-            </div>
-            <div>
-              <h5 style={{ fontWeight: 700, fontSize: "0.9375rem" }}>Простой возврат</h5>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
-                14 дней на обмен или возврат покупки
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "12px",
-                background: "rgba(16, 185, 129, 0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--color-success)",
-              }}
-            >
-              <Headphones size={24} />
-            </div>
-            <div>
-              <h5 style={{ fontWeight: 700, fontSize: "0.9375rem" }}>Служба заботы</h5>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
-                Ежедневно с 09:00 до 22:00
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer Links */}
       <div className="container">
+        
+        {/* Main Footer Grid */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "2.5rem",
-            marginBottom: "3rem",
+            gridTemplateColumns: "1.5fr 1fr 1fr 1.35fr",
+            gap: "3rem",
+            marginBottom: "4rem",
           }}
+          className="footer-grid-responsive"
         >
-          {/* Brand info */}
-          <div style={{ maxWidth: "300px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+          {/* Brand Info */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
               <div
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 38,
+                  height: 38,
                   borderRadius: "8px",
-                  background: "linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-violet) 100%)",
+                  border: "1.5px solid #C29B63",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 900,
-                  color: "#FFF",
+                  background: "rgba(194, 155, 99, 0.1)",
                 }}
               >
-                N
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.5rem",
+                    fontWeight: 700,
+                    color: "#DFC5A0",
+                    lineHeight: 1,
+                  }}
+                >
+                  H
+                </span>
               </div>
-              <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "#FFF" }}>
-                NEXORA<span style={{ color: "var(--accent-cyan)" }}>.</span>
-              </span>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.35rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.12em",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  HAVEN
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.58rem",
+                    letterSpacing: "0.3em",
+                    color: "#C29B63",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    marginTop: "2px",
+                  }}
+                >
+                  ELECTRONICS
+                </span>
+              </div>
             </div>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-              Премиальный интернет-магазин оригинальной электроники, гаджетов и инновационной техники для дома в Узбекистане.
+
+            <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.65, maxWidth: "340px", marginBottom: "1.75rem" }}>
+              Премиальный интернет-магазин флагманской электроники и техники в Узбекистане. Только оригинальная продукция с официальной гарантией.
             </p>
-            <div style={{ color: "var(--text-muted)", fontSize: "0.8125rem" }}>
-              г. Ташкент, проспект Амира Темура, 45
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem", fontSize: "0.875rem", color: "#8E9BAE" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <MapPin size={15} color="#C29B63" />
+                <span>г. Ташкент, проспект Амира Темура, 45</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <Phone size={15} color="#C29B63" />
+                <span>+998 (71) 200-00-00 (Ежедневно 09:00 - 21:00)</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <Mail size={15} color="#C29B63" />
+                <span>concierge@haventech.uz</span>
+              </div>
             </div>
           </div>
 
-          {/* Catalog */}
+          {/* Categories Links */}
           <div>
-            <h4 style={{ color: "#FFF", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem" }}>
-              Каталог товаров
-            </h4>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.6rem", fontSize: "0.875rem" }}>
+            <h5
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.1rem",
+                color: "#FFFFFF",
+                fontWeight: 600,
+                marginBottom: "1.25rem",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Категории техники
+            </h5>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.75rem", padding: 0 }}>
               <li>
-                <Link href="/catalog/smartphones" style={{ color: "var(--text-secondary)" }}>
-                  Смартфоны и гаджеты
+                <Link href="/catalog?category=smartphones" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Смартфоны Apple & Samsung
                 </Link>
               </li>
               <li>
-                <Link href="/catalog/laptops" style={{ color: "var(--text-secondary)" }}>
-                  Ноутбуки и MacBook
+                <Link href="/catalog?category=laptops" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Ноутбуки Apple MacBook M4
                 </Link>
               </li>
               <li>
-                <Link href="/catalog/tv-audio" style={{ color: "var(--text-secondary)" }}>
-                  Телевизоры и акустика
+                <Link href="/catalog?category=tv-audio" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  OLED Телевизоры & Звук
                 </Link>
               </li>
               <li>
-                <Link href="/catalog/appliances" style={{ color: "var(--text-secondary)" }}>
-                  Бытовая техника Dyson
+                <Link href="/catalog?category=gaming" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Игровые консоли PS5 Pro
                 </Link>
               </li>
               <li>
-                <Link href="/catalog/gaming" style={{ color: "var(--text-secondary)" }}>
-                  PlayStation 5 и гейминг
+                <Link href="/catalog?category=appliances" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Премиум техника Dyson
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Customers */}
+          {/* Service Links */}
           <div>
-            <h4 style={{ color: "#FFF", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem" }}>
-              Покупателям
-            </h4>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.6rem", fontSize: "0.875rem" }}>
+            <h5
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.1rem",
+                color: "#FFFFFF",
+                fontWeight: 600,
+                marginBottom: "1.25rem",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Сервис и клиентам
+            </h5>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.75rem", padding: 0 }}>
               <li>
-                <Link href="/catalog" style={{ color: "var(--text-secondary)" }}>
-                  Все товары магазина
+                <Link href="/about" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  О компании
                 </Link>
               </li>
               <li>
-                <Link href="/account" style={{ color: "var(--text-secondary)" }}>
-                  Личный кабинет
+                <Link href="/catalog" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Официальная гарантия
                 </Link>
               </li>
               <li>
-                <Link href="/cart" style={{ color: "var(--text-secondary)" }}>
-                  Корзина покупок
+                <Link href="/cart" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Доставка и оплата в сумах
                 </Link>
               </li>
               <li>
-                <Link href="/favorites" style={{ color: "var(--text-secondary)" }}>
+                <Link href="/account" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
+                  Личный кабинет & Заказы
+                </Link>
+              </li>
+              <li>
+                <Link href="/favorites" style={{ color: "#8E9BAE", fontSize: "0.875rem", textDecoration: "none" }}>
                   Список избранного
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contacts & Payment methods */}
+          {/* Newsletter Subscribe */}
           <div>
-            <h4 style={{ color: "#FFF", fontSize: "0.9375rem", fontWeight: 700, marginBottom: "1rem" }}>
-              Контакты и оплата
-            </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", fontSize: "0.875rem" }}>
-              <a href="tel:+998712000000" style={{ color: "var(--accent-cyan)", fontWeight: 700, fontSize: "1.0625rem" }}>
-                +998 (71) 200-00-00
-              </a>
-              <span style={{ color: "var(--text-muted)" }}>Без выходных, 09:00 - 22:00</span>
-              <a href="mailto:support@nexora.uz" style={{ color: "var(--text-secondary)" }}>
-                support@nexora.uz
-              </a>
-              
-              {/* Payment badges */}
-              <div style={{ marginTop: "1rem" }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block", marginBottom: "0.5rem" }}>
-                  Способы оплаты:
-                </span>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "#FFF", border: "1px solid var(--border-subtle)" }}>
-                    Uzcard
-                  </span>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "var(--accent-cyan)", border: "1px solid var(--border-subtle)" }}>
-                    Humo
-                  </span>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "#FFF", border: "1px solid var(--border-subtle)" }}>
-                    Payme
-                  </span>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "#FFF", border: "1px solid var(--border-subtle)" }}>
-                    Click
-                  </span>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "#FFF", border: "1px solid var(--border-subtle)", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
-                    <CreditCard size={12} /> Visa / MC
-                  </span>
-                  <span style={{ background: "var(--bg-surface)", padding: "0.25rem 0.6rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 700, color: "var(--color-success)", border: "1px solid var(--border-subtle)", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
-                    <Banknote size={12} /> Наличные
-                  </span>
-                </div>
+            <h5
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.1rem",
+                color: "#FFFFFF",
+                fontWeight: 600,
+                marginBottom: "0.75rem",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Спецпредложения и закрытые акции
+            </h5>
+            <p style={{ color: "#8E9BAE", fontSize: "0.875rem", lineHeight: 1.55, marginBottom: "1.25rem" }}>
+              Получайте первыми уведомления о старте продаж новых флагманов и промокоды на скидку.
+            </p>
+
+            {subscribed ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  color: "#C29B63",
+                  fontSize: "0.875rem",
+                  background: "rgba(194, 155, 99, 0.1)",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(194, 155, 99, 0.3)",
+                }}
+              >
+                <CheckCircle2 size={16} />
+                <span>Вы успешно подписаны на спецпредложения!</span>
               </div>
-            </div>
+            ) : (
+              <form onSubmit={handleSubscribe} style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                <input
+                  type="email"
+                  required
+                  placeholder="Ваш адрес электронной почты"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    padding: "0.75rem 1rem",
+                    borderRadius: "9999px",
+                    background: "rgba(255, 255, 255, 0.05)",
+                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                    color: "#FFFFFF",
+                    fontSize: "0.875rem",
+                    outline: "none",
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    background: "#C29B63",
+                    color: "#06080D",
+                    borderRadius: "9999px",
+                    padding: "0.75rem",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <span>Подписаться на новинки</span>
+                  <ArrowRight size={14} />
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
-        {/* Bottom copyright and legal */}
+        {/* Bottom Line */}
         <div
           style={{
-            borderTop: "1px solid var(--border-subtle)",
-            paddingTop: "1.75rem",
+            paddingTop: "2rem",
+            borderTop: "1px solid rgba(255, 255, 255, 0.06)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
             gap: "1rem",
             fontSize: "0.8125rem",
-            color: "var(--text-muted)",
+            color: "#64748B",
           }}
         >
           <div>
-            © 2026 Nexora Store. Все права защищены. Разработано для рынка Узбекистана.
+            © {new Date().getFullYear()} HAVEN ELECTRONICS. ВСЕ ПРАВА ЗАЩИЩЕНЫ. ОФИЦИАЛЬНАЯ ТЕХНИКА В УЗБЕКИСТАНЕ.
           </div>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <span>Цены указаны в сумах (UZS)</span>
-            <span>·</span>
-            <Link href="/admin" style={{ color: "var(--text-muted)" }}>
-              Панель администратора
-            </Link>
+          <div style={{ display: "flex", gap: "1.5rem" }}>
+            <Link href="/about" style={{ color: "#64748B", textDecoration: "none" }}>Политика конфиденциальности</Link>
+            <Link href="/about" style={{ color: "#64748B", textDecoration: "none" }}>Условия обслуживания</Link>
+            <Link href="/about" style={{ color: "#64748B", textDecoration: "none" }}>Оферта</Link>
           </div>
         </div>
+
       </div>
     </footer>
   );

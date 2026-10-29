@@ -15,7 +15,8 @@
     "db:studio": "prisma studio",
     "admin:create": "tsx prisma/create-admin.ts",
     "test:stages": "tsx scripts/test-stages.ts",
-    "test:stage7": "tsx scripts/test-stage-7.ts"
+    "test:stage7": "tsx scripts/test-stage-7.ts",
+    "test:stage8": "tsx scripts/test-stage-8.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

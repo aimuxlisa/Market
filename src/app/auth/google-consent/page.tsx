@@ -1,26 +1,28 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
-import { Info, ArrowRight } from "lucide-react";
+import { Info, ArrowRight, CheckCircle2, User } from "lucide-react";
 
 function GoogleConsentContent() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state") || "";
 
+  const [customName, setCustomName] = useState("");
+  const [customEmail, setCustomEmail] = useState("");
+
   const DEMO_GOOGLE_PROFILES = [
     {
-      name: "Alex Nexora",
-      email: "alex.nexora@gmail.com",
+      name: "Алишер Каримов",
+      email: "alisher.karimov@gmail.com",
       avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&crop=face",
     },
     {
-      name: "Diana Tech",
-      email: "diana.tech@gmail.com",
+      name: "Диана Темирова",
+      email: "diana.temirova@gmail.com",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     },
   ];
@@ -28,26 +30,28 @@ function GoogleConsentContent() {
   return (
     <div
       style={{
-        background: "var(--bg-card)",
-        border: "1px solid var(--border-card)",
-        borderRadius: "var(--radius-xl)",
+        background: "rgba(14, 20, 32, 0.85)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: "1px solid rgba(194, 155, 99, 0.35)",
+        borderRadius: "24px",
         padding: "2.5rem 2rem",
-        boxShadow: "0 0 35px rgba(0, 229, 255, 0.12)",
+        boxShadow: "0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(194, 155, 99, 0.15)",
       }}
     >
       {/* Google Logo Header */}
       <div style={{ textAlign: "center", marginBottom: "1.75rem" }}>
         <div
           style={{
-            width: 56,
-            height: 56,
+            width: 58,
+            height: 58,
             borderRadius: "50%",
             background: "#FFFFFF",
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: "1rem",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+            boxShadow: "0 4px 18px rgba(0,0,0,0.3)",
           }}
         >
           <svg width="28" height="28" viewBox="0 0 24 24">
@@ -70,41 +74,25 @@ function GoogleConsentContent() {
           </svg>
         </div>
 
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#FFF", marginBottom: "0.4rem", letterSpacing: "-0.02em" }}>
+        <h1
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: "1.75rem",
+            fontWeight: 600,
+            color: "#FFF",
+            marginBottom: "0.4rem",
+            letterSpacing: "-0.01em",
+          }}
+        >
           Вход через Google
         </h1>
-        <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>
-          Nexora Store запрашивает доступ к вашему профилю и email
+        <p style={{ fontSize: "0.875rem", color: "#8E9BAE" }}>
+          Выберите аккаунт Google для входа в Haven Electronics
         </p>
       </div>
 
-      {/* Info notice about credentials */}
-      <div
-        style={{
-          background: "rgba(0, 229, 255, 0.08)",
-          border: "1px solid rgba(0, 229, 255, 0.25)",
-          borderRadius: "var(--radius-lg)",
-          padding: "1rem 1.25rem",
-          marginBottom: "1.75rem",
-          display: "flex",
-          gap: "0.75rem",
-          fontSize: "0.8125rem",
-          color: "var(--text-secondary)",
-          lineHeight: 1.5,
-        }}
-      >
-        <Info size={20} color="var(--accent-cyan)" style={{ flexShrink: 0, marginTop: "2px" }} />
-        <div>
-          <strong style={{ color: "var(--accent-cyan)", display: "block", marginBottom: "0.2rem" }}>
-            Режим разработки (T5.3):
-          </strong>
-          Переменные <code style={{ color: "#FFF", background: "rgba(255,255,255,0.1)", padding: "2px 5px", borderRadius: "4px" }}>GOOGLE_CLIENT_ID</code> и{" "}
-          <code style={{ color: "#FFF", background: "rgba(255,255,255,0.1)", padding: "2px 5px", borderRadius: "4px" }}>GOOGLE_CLIENT_SECRET</code> можно указать в файле <code style={{ color: "#FFF" }}>.env</code>. Выберите тестовый аккаунт для мгновенной проверки полного цикла OAuth:
-        </div>
-      </div>
-
       {/* Account selection list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "2rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem", marginBottom: "1.75rem" }}>
         {DEMO_GOOGLE_PROFILES.map((profile) => (
           <a
             key={profile.email}
@@ -114,36 +102,124 @@ function GoogleConsentContent() {
               alignItems: "center",
               justifyContent: "space-between",
               padding: "1rem 1.25rem",
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "var(--radius-lg)",
-              transition: "all var(--transition-fast)",
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "16px",
+              transition: "all 0.2s ease",
               textDecoration: "none",
             }}
-            className="google-profile-option"
+            className="value-card-hover"
           >
             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <img
                 src={profile.avatar}
                 alt={profile.name}
-                style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--accent-cyan)" }}
+                style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid #C29B63" }}
               />
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontWeight: 700, color: "#FFF", fontSize: "0.9375rem" }}>{profile.name}</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>{profile.email}</div>
+                <div style={{ fontWeight: 600, color: "#FFF", fontSize: "0.9375rem" }}>{profile.name}</div>
+                <div style={{ fontSize: "0.8125rem", color: "#8E9BAE" }}>{profile.email}</div>
               </div>
             </div>
 
-            <ArrowRight size={18} color="var(--accent-cyan)" />
+            <span
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(194, 155, 99, 0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#DFC5A0",
+              }}
+            >
+              <ArrowRight size={15} />
+            </span>
           </a>
         ))}
       </div>
 
-      <div style={{ textAlign: "center", borderTop: "1px solid var(--border-subtle)", paddingTop: "1.25rem" }}>
-        <Link href="/auth/login">
-          <Button variant="secondary" size="sm">
-            Отмена и возврат ко входу
-          </Button>
+      {/* Custom Account Input Option */}
+      <div
+        style={{
+          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+          paddingTop: "1.5rem",
+          marginBottom: "1.75rem",
+        }}
+      >
+        <span style={{ fontSize: "0.8125rem", color: "#8E9BAE", display: "block", marginBottom: "0.85rem" }}>
+          Или укажите свой Google Email:
+        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <input
+            type="text"
+            placeholder="Ваше имя (например: Сардор)"
+            value={customName}
+            onChange={(e) => setCustomName(e.target.value)}
+            style={{
+              padding: "0.75rem 1rem",
+              borderRadius: "12px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              color: "#FFFFFF",
+              fontSize: "0.875rem",
+              outline: "none",
+            }}
+          />
+          <input
+            type="email"
+            placeholder="ваш.email@gmail.com"
+            value={customEmail}
+            onChange={(e) => setCustomEmail(e.target.value)}
+            style={{
+              padding: "0.75rem 1rem",
+              borderRadius: "12px",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              color: "#FFFFFF",
+              fontSize: "0.875rem",
+              outline: "none",
+            }}
+          />
+          {customEmail.trim() ? (
+            <a
+              href={`/api/auth/google/callback?code=mock_code_${encodeURIComponent(customEmail)}&state=${encodeURIComponent(state)}&email=${encodeURIComponent(customEmail)}&name=${encodeURIComponent(customName || customEmail.split("@")[0])}`}
+              style={{
+                background: "#C29B63",
+                color: "#06080D",
+                borderRadius: "9999px",
+                padding: "0.8rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                textAlign: "center",
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span>Продолжить как {customName || customEmail}</span>
+              <ArrowRight size={15} />
+            </a>
+          ) : null}
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "1.25rem" }}>
+        <Link
+          href="/auth/login"
+          style={{
+            color: "#8E9BAE",
+            fontSize: "0.875rem",
+            textDecoration: "none",
+            transition: "color 0.2s ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#FFFFFF")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#8E9BAE")}
+        >
+          Отмена и возврат ко входу
         </Link>
       </div>
     </div>
@@ -157,7 +233,7 @@ export default function GoogleConsentPage() {
 
       <main className="main-content" style={{ padding: "4rem 0 6rem" }}>
         <div className="container" style={{ maxWidth: "520px" }}>
-          <Suspense fallback={<div style={{ textAlign: "center", color: "var(--text-muted)", padding: "3rem" }}>Загрузка Google Auth...</div>}>
+          <Suspense fallback={<div style={{ textAlign: "center", color: "#8E9BAE", padding: "3rem" }}>Загрузка Google Auth...</div>}>
             <GoogleConsentContent />
           </Suspense>
         </div>
