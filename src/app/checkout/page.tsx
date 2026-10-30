@@ -22,7 +22,7 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, totalCount, clearCart } = useCart();
-  const { tgUser, isTelegram, haptic } = useTelegram();
+  const { tgUser, haptic } = useTelegram();
 
   const [customerName, setCustomerName] = useState(
     tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") : ""

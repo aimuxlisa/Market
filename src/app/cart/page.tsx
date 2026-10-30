@@ -67,7 +67,7 @@ export default function CartPage() {
     } else {
       webApp.MainButton.hide();
     }
-  }, [isTelegram, webApp, items.length, finalTotal, router]);
+  }, [isTelegram, webApp, items.length, finalTotal, router, haptic]);
 
   return (
     <>
