@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type { TelegramWebApp, TelegramUser } from "@/types/telegram";
 
 interface TelegramContextType {
@@ -25,6 +26,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isTelegram, setIsTelegram] = useState(false);
   const [webApp, setWebApp] = useState<TelegramWebApp | null>(null);
   const [tgUser, setTgUser] = useState<TelegramUser | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -35,6 +38,18 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setWebApp(tg);
       tg.ready();
       tg.expand();
+
+      // Configure Telegram header & background colors to match luxury dark theme
+      try {
+        if ("setHeaderColor" in tg && typeof (tg as { setHeaderColor: (c: string) => void }).setHeaderColor === "function") {
+          (tg as { setHeaderColor: (c: string) => void }).setHeaderColor("#07090E");
+        }
+        if ("setBackgroundColor" in tg && typeof (tg as { setBackgroundColor: (c: string) => void }).setBackgroundColor === "function") {
+          (tg as { setBackgroundColor: (c: string) => void }).setBackgroundColor("#07090E");
+        }
+      } catch {
+        // ignore if not supported by client version
+      }
 
       // Set user from initDataUnsafe if available
       if (tg.initDataUnsafe.user) {
@@ -53,6 +68,26 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     }
   }, []);
+
+  // Telegram Native BackButton sync with browser history/routes
+  useEffect(() => {
+    if (!webApp?.BackButton) return;
+
+    if (pathname !== "/") {
+      webApp.BackButton.show();
+      const handleBack = () => {
+        haptic("light");
+        router.back();
+      };
+      webApp.BackButton.onClick(handleBack);
+
+      return () => {
+        webApp.BackButton.offClick(handleBack);
+      };
+    } else {
+      webApp.BackButton.hide();
+    }
+  }, [pathname, webApp, router]);
 
   const expand = () => {
     webApp?.expand();
