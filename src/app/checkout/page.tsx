@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
+import { useTelegram } from "@/context/TelegramContext";
 import { formatPrice } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import {
@@ -21,8 +22,11 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, totalCount, clearCart } = useCart();
+  const { tgUser, isTelegram, haptic } = useTelegram();
 
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] = useState(
+    tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") : ""
+  );
   const [customerPhone, setCustomerPhone] = useState("+998 ");
   const [customerEmail, setCustomerEmail] = useState("");
   const [deliveryCity, setDeliveryCity] = useState("Ташкент");
@@ -33,6 +37,14 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Update name if Telegram user loaded
+  React.useEffect(() => {
+    if (tgUser && !customerName) {
+      const name = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ");
+      if (name) setCustomerName(name);
+    }
+  }, [tgUser, customerName]);
 
   const deliveryFee =
     deliveryMethod === "express"
@@ -85,6 +97,7 @@ export default function CheckoutPage() {
       }
 
       // Order created successfully!
+      haptic("success");
       clearCart();
 
       if (paymentMethod === "stripe") {

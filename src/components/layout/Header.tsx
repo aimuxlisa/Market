@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useTelegram } from "@/context/TelegramContext";
 
 interface HeaderProps {
   favoritesCount?: number;
@@ -27,6 +28,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ favoritesCount }) => {
   const { totalCount: cartCount } = useCart();
   const { favoritesCount: storedFavCount } = useFavorites();
+  const { isTelegram } = useTelegram();
   const effectiveFavCount = favoritesCount !== undefined ? favoritesCount : storedFavCount;
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -131,18 +133,37 @@ export const Header: React.FC<HeaderProps> = ({ favoritesCount }) => {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "1.35rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.12em",
-                  color: "#FFFFFF",
-                  lineHeight: 1.05,
-                }}
-              >
-                HAVEN
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "1.35rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    color: "#FFFFFF",
+                    lineHeight: 1.05,
+                  }}
+                >
+                  HAVEN
+                </span>
+                {isTelegram && (
+                  <span
+                    style={{
+                      fontSize: "0.55rem",
+                      padding: "1px 5px",
+                      borderRadius: "4px",
+                      background: "rgba(0, 136, 204, 0.2)",
+                      border: "1px solid rgba(0, 136, 204, 0.4)",
+                      color: "#38B2AC",
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    TG App
+                  </span>
+                )}
+              </div>
               <span
                 style={{
                   fontSize: "0.55rem",

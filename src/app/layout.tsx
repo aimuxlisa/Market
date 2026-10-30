@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { DynamicBackground } from "@/components/layout/DynamicBackground";
 import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
+import { TelegramProvider } from "@/context/TelegramContext";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -34,16 +36,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+          rel="stylesheet"
+        />
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body>
         <DynamicBackground />
-        <FavoritesProvider>
-          <CartProvider>
-            <div id="app-root" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-              {children}
-              <MobileNav />
-            </div>
-          </CartProvider>
-        </FavoritesProvider>
+        <TelegramProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <div id="app-root" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+                {children}
+                <MobileNav />
+              </div>
+            </CartProvider>
+          </FavoritesProvider>
+        </TelegramProvider>
       </body>
     </html>
   );

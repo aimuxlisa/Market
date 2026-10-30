@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
+import { useTelegram } from "@/context/TelegramContext";
 import { formatPrice } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -21,7 +23,9 @@ import {
 } from "lucide-react";
 
 export default function CartPage() {
+  const router = useRouter();
   const { items, subtotal, totalCount, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { isTelegram, webApp, haptic } = useTelegram();
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; percent: number } | null>(null);
   const [promoError, setPromoError] = useState("");
@@ -42,6 +46,28 @@ export default function CartPage() {
   const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.percent) / 100) : 0;
   const deliveryFee = subtotal >= 1000000 || subtotal === 0 ? 0 : 25000;
   const finalTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
+
+  // Sync Telegram WebApp MainButton
+  useEffect(() => {
+    if (!isTelegram || !webApp) return;
+
+    if (items.length > 0) {
+      webApp.MainButton.setText(`ОФОРМИТЬ ЗАКАЗ • ${formatPrice(finalTotal)}`);
+      webApp.MainButton.show();
+      const onMainButtonClick = () => {
+        haptic("medium");
+        router.push("/checkout");
+      };
+      webApp.MainButton.onClick(onMainButtonClick);
+
+      return () => {
+        webApp.MainButton.offClick(onMainButtonClick);
+        webApp.MainButton.hide();
+      };
+    } else {
+      webApp.MainButton.hide();
+    }
+  }, [isTelegram, webApp, items.length, finalTotal, router]);
 
   return (
     <>

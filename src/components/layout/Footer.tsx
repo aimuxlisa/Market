@@ -199,6 +199,12 @@ export const Footer: React.FC = () => {
                   Список избранного
                 </Link>
               </li>
+              <li>
+                <Link href="/telegram" style={{ color: "var(--accent-gold)", fontSize: "0.875rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                  <span>Telegram Mini App</span>
+                  <span style={{ fontSize: "0.65rem", padding: "1px 5px", background: "rgba(0, 136, 204, 0.2)", border: "1px solid rgba(0, 136, 204, 0.4)", color: "#38B2AC", borderRadius: 4 }}>NEW</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
